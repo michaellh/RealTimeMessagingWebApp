@@ -1,0 +1,8 @@
+{
+    "name": "real-time-messaging-web-app",
+    "version": "0.0.1",
+    "description": "SENG assignment 3",
+    "dependencies": {
+        "express": "^4.16.4"
+    }
+}
