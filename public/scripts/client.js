@@ -14,7 +14,7 @@ $(function () {
 
     // Respond to a 'chat message' object on this socket
     // by appending to the chat history
-    socket.on('chat message', function(msg) {
-        $('#messages').append($('<li>').text(msg));
+    socket.on('chat message', function(msg, msgTime) {
+        $('#messages').append($('<li>').text(msgTime + " " + msg));
     });
 });
