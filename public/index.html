@@ -9,10 +9,17 @@
         <title>Group Chat!</title>
     </head>
     <body>
-        <p id="nickname"></p>
-        <ul id="messages"></ul>
-        <form id="message-form" action="">
-            <input id="user-message" autocomplete="off"/>
-        </form>
+        <div id="message-app">
+            <p id="nickname"></p>
+            <div id="messages-container">
+                <ul id="messages"></ul>
+            </div>
+            <div id="users-container">
+                <ul id="users"></ul>
+            </div>
+            <form id="message-form" action="">
+                <input id="user-message" autocomplete="off"/>
+            </form>
+        </div>
     </body>
 </html>

@@ -13,6 +13,8 @@ var chatFeats = require('./chat-feats');
 var nickNameList = [];
 // Array of the past 200 messages - the chat history
 var chatHistory = [];
+// Array of connected clients
+var clientsList = [];
 
 // Pass static files in the public dir to Express.static 
 // middleware for client-side rwx
@@ -32,6 +34,12 @@ io.on('connection', function(socket) {
     console.log(nickName + ' connected');
     socket.emit('nickname', nickName);
 
+    // Send the list of connected clients to the client
+    clientsList.push(nickName);
+    socket.emit('client list', clientsList);
+    // Alert all other clients of the new client
+    socket.broadcast.emit('new client', nickName);
+
     // Send the chat history to the client
     // Typically the client would send a req to server
     // that queries the DB for their chat history file
@@ -46,6 +54,12 @@ io.on('connection', function(socket) {
 
     socket.on('disconnect', function() {
         console.log(nickName + ' disconnected');
+        // Alert all clients that this client has left
+        // and broadcast a new list of clients
+        clientsList = clientsList.filter(function(client) {
+            return client != nickName;
+        });
+        socket.broadcast.emit('client disconnected', clientsList);
     });
 });
 
