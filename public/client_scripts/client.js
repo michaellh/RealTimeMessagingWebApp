@@ -2,7 +2,7 @@
 
 // Initialize the client socket
 $(function () {
-    // Client states
+    // Client state properties
     var userNickName = "";
 
     var socket = io();
@@ -10,8 +10,19 @@ $(function () {
     // Send the chat message
     $('form').submit(function(e) {
         // Prevents the page from reloading
-        e.preventDefault(); 
-        socket.emit('chat message', userNickName, $('#user-message').val());
+        e.preventDefault();
+
+        // Change the client's nickname if they input
+        // the correct command "/nick newName"
+        let msg = $('#user-message').val();
+        if(msg.includes("/nick")) {
+            let nickNameArr = msg.split(" ");
+            let newNickName = nickNameArr[1];
+            socket.emit('new nickname', newNickName);
+        }
+        else {
+            socket.emit('chat message', userNickName, msg);
+        }
         $('#user-message').val('');
         return false;
     });
@@ -36,13 +47,8 @@ $(function () {
         });
     });
 
-    // Receive an alert when a new user has connected
-    socket.on('new client', function(nickName) {
-        $('#users').append($('<li>').text(nickName));
-    });
-
     // Receive an alert that a user has disconnected
-    socket.on('client disconnected', function(clientsList) {
+    socket.on('client list change', function(clientsList) {
         $('#users').empty();
         clientsList.forEach(element => {
             $('#users').append($('<li>').text(element));

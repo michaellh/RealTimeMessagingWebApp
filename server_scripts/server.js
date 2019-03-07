@@ -9,8 +9,6 @@ var io = require('socket.io')(server);
 var path = require('path');
 var chatFeats = require('./chat-feats');
 
-// Array of client nicknames connected to the server
-var nickNameList = [];
 // Array of the past 200 messages - the chat history
 var chatHistory = [];
 // Array of connected clients
@@ -38,12 +36,33 @@ io.on('connection', function(socket) {
     clientsList.push(nickName);
     socket.emit('client list', clientsList);
     // Alert all other clients of the new client
-    socket.broadcast.emit('new client', nickName);
+    //socket.broadcast.emit('new client', nickName);
+    socket.broadcast.emit('client list change', clientsList);
 
     // Send the chat history to the client
     // Typically the client would send a req to server
     // that queries the DB for their chat history file
     socket.emit('chat history', chatHistory);
+
+    // Respond to a new nickname request by checking to see
+    // if it already exists and if not broadcast the change
+    socket.on('new nickname', function(newNickName) {
+        if(!clientsList.includes(newNickName)) {
+            // Remove the old client's nickname from the list
+            let nickNameIndex = clientsList.indexOf(nickName);
+            if (nickNameIndex !== -1) {
+                nickName = newNickName;
+                clientsList.splice(nickNameIndex, 1);
+                clientsList.push(newNickName);
+                socket.emit('nickname', newNickName);
+                io.emit('client list change', clientsList);
+            }
+        }
+        else {
+            // Refuse the nickname change request
+            // socket.emit('nickname req failed', newNickName);
+        }
+    });
 
     // Respond to a chat message
     socket.on('chat message', function(nickName, msg){
@@ -59,7 +78,7 @@ io.on('connection', function(socket) {
         clientsList = clientsList.filter(function(client) {
             return client != nickName;
         });
-        socket.broadcast.emit('client disconnected', clientsList);
+        socket.broadcast.emit('client list change', clientsList);
     });
 });
 
