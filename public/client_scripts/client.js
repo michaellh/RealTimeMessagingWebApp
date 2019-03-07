@@ -22,6 +22,13 @@ $(function () {
         $('#nickname').text("Welcome " + userNickName);
     });
 
+    // Receive the chat history
+    socket.on('chat history', function(chatHistory) {
+        chatHistory.forEach(element => {
+            $('#messages').append($('<li>').text(element));
+        });
+    });
+
     // Respond to a 'chat message' object on this socket
     // by appending to the chat history
     socket.on('chat message', function(nickName, msg, msgTime) {

@@ -11,6 +11,8 @@ var chatFeats = require('./chat-feats');
 
 // Array of client nicknames connected to the server
 var nickNameList = [];
+// Array of the past 200 messages - the chat history
+var chatHistory = [];
 
 // Pass static files in the public dir to Express.static 
 // middleware for client-side rwx
@@ -24,13 +26,21 @@ expressApp.get('/', function(req, res) {
 // Respond when a client connects to the server
 io.on('connection', function(socket) {
     // Try until a unique nickname is found for the client
+    // A promise should be used here to ensure the nickname
+    // doesn't already exist within the server/DB
     let nickName = chatFeats.newNickName();
     console.log(nickName + ' connected');
     socket.emit('nickname', nickName);
 
+    // Send the chat history to the client
+    // Typically the client would send a req to server
+    // that queries the DB for their chat history file
+    socket.emit('chat history', chatHistory);
+
     // Respond to a chat message
     socket.on('chat message', function(nickName, msg){
         let msgTime = chatFeats.msgTimeStamp();
+        chatHistory.push(nickName + " " + msgTime + " " + msg);
         io.emit('chat message', nickName, msg, msgTime);
     });
 
