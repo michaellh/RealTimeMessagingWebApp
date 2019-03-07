@@ -4,6 +4,7 @@
     "description": "SENG assignment 3",
     "dependencies": {
         "express": "^4.16.4",
+        "nanoid": "^2.0.1",
         "socket.io": "^2.2.0"
     }
 }
