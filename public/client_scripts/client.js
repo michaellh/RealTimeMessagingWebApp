@@ -2,6 +2,9 @@
 
 // Initialize the client socket
 $(function () {
+    // Client state vars
+    var userName = "";
+
     var socket = io();
 
     // Send the chat message
@@ -17,6 +20,7 @@ $(function () {
 
     // Receive a nickname bestowed by the server
     socket.on('nickname', function(nickName, nickColor) {
+        userName = nickName;
         $('#nickname').html("Welcome " + '<span style="color:' + nickColor
         + '">' + nickName + '</span>');
     });
@@ -35,6 +39,14 @@ $(function () {
     socket.on('chat history', function(chatHistory) {
         chatHistory.forEach(element => {
             $('#messages').append($('<li>').html(element));
+            // if(nickName === userName) {
+            //     $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
+            //     + '">' + nickName + '</span>' + ": " + '<span style="font-weight:' + 'bold' + '">' + msg + '</span>'));
+            // }
+            // else {
+            //     $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
+            //     + '">' + nickName + '</span>' + ": " + msg));
+            // }
         });
     });
 
@@ -49,7 +61,13 @@ $(function () {
 
     // Receive a msg and append it to the chat history
     socket.on('chat message', function(msgTime, nickName, msg, nickColor) {
-        $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
-         + '">' + nickName + '</span>' + ": " + msg));
+        if(nickName === userName) {
+            $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
+            + '">' + nickName + '</span>' + ": " + '<span style="font-weight:' + 'bold' + '">' + msg + '</span>'));
+        }
+        else {
+            $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
+            + '">' + nickName + '</span>' + ": " + msg));
+        }
     });
 });
