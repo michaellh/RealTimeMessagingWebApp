@@ -58,10 +58,6 @@ io.on('connection', function(socket) {
                 io.emit('client list change', clientsList);
             }
         }
-        else {
-            // Refuse the nickname change request
-            // socket.emit('nickname req failed', newNickName);
-        }
     });
 
     // Respond to a chat message

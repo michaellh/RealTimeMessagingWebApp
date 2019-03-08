@@ -4,6 +4,7 @@
 $(function () {
     // Client state properties
     var userNickName = "";
+    var usersList = [];
 
     var socket = io();
 
@@ -18,7 +19,12 @@ $(function () {
         if(msg.includes("/nick")) {
             let nickNameArr = msg.split(" ");
             let newNickName = nickNameArr[1];
-            socket.emit('new nickname', newNickName);
+            if(usersList.indexOf(newNickName) !== -1) {
+                $('#messages').append($('<li>').text("Nickname already exists! Try another name!"));
+            }
+            else {
+                socket.emit('new nickname', newNickName);
+            }
         }
         else {
             socket.emit('chat message', userNickName, msg);
@@ -44,14 +50,17 @@ $(function () {
     socket.on('client list', function(clientsList) {
         clientsList.forEach(element => {
             $('#users').append($('<li>').text(element));
+            usersList.push(element);
         });
     });
 
     // Receive an alert that a user has disconnected
     socket.on('client list change', function(clientsList) {
         $('#users').empty();
+        usersList.length = 0;
         clientsList.forEach(element => {
             $('#users').append($('<li>').text(element));
+            usersList.push(element);
         });
     });
 
