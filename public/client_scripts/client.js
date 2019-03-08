@@ -2,9 +2,7 @@
 
 // Initialize the client socket
 $(function () {
-    // Client state vars
     var userName = "";
-
     var socket = io();
 
     // Send the chat message
@@ -18,11 +16,26 @@ $(function () {
         return false;
     });
 
+    socket.on('check cookies', function() {
+        if(document.cookie.split(';').filter((item) => item.trim().startsWith('nickName=')).length) {
+            userName = document.cookie.replace(/(?:(?:^|.*;\s*)nickName\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            let nickColor = document.cookie.replace(/(?:(?:^|.*;\s*)nickColor\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+            socket.emit('client status', "reconnecting", userName, nickColor);
+            $('#nickname').html("Welcome " + '<span style="color:' + nickColor
+                + '">' + userName + '</span>');
+        }
+        else {
+            socket.emit('client status', "connecting", userName);
+        }
+    });
+
     // Receive a nickname bestowed by the server
     socket.on('nickname', function(nickName, nickColor) {
         userName = nickName;
+        document.cookie = "nickName=" + userName;
+        document.cookie = "nickColor=" + nickColor;
         $('#nickname').html("Welcome " + '<span style="color:' + nickColor
-        + '">' + nickName + '</span>');
+            + '">' + userName + '</span>');
     });
 
     // Receive error msg that the nickname change failed
@@ -38,15 +51,15 @@ $(function () {
     // Receive the chat history upon entering the chat
     socket.on('chat history', function(chatHistory) {
         chatHistory.forEach(element => {
-            $('#messages').append($('<li>').html(element));
-            // if(nickName === userName) {
-            //     $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
-            //     + '">' + nickName + '</span>' + ": " + '<span style="font-weight:' + 'bold' + '">' + msg + '</span>'));
-            // }
-            // else {
-            //     $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
-            //     + '">' + nickName + '</span>' + ": " + msg));
-            // }
+            //$('#messages').append($('<li>').html(element));
+            if(document.cookie.split(';').filter((item) => item.includes('nickName=' + element.nickName)).length) {
+                $('#messages').append($('<li>').html(element.msgTime + " " + '<span style="color:' + element.nickColor
+                + '">' + element.nickName + '</span>' + ": " + '<span style="font-weight:' + 'bold' + '">' + element.msg + '</span>'));
+            }
+            else {
+                $('#messages').append($('<li>').html(element.msgTime + " " + '<span style="color:' + element.nickColor
+                + '">' + element.nickName + '</span>' + ": " + element.msg));
+            }
         });
     });
 

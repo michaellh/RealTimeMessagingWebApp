@@ -21,26 +21,40 @@ expressApp.get('/', function(req, res) {
 
 // Respond when a client connects to the server
 io.on('connection', function(socket) {
-    // Default font color
-    socket.nickColor = "#000000";
+    socket.emit('check cookies');
 
-    // Generate a nickname for the client
-    socket.nickName = chatFeats.newNickName();
-    console.log(socket.nickName + ' connected');
-    socket.emit('nickname', socket.nickName, socket.nickColor);
+    socket.on('client status', function(status, nickName, nickColor) {
+        if(status === "connecting") {
+            // Default font color
+            socket.nickColor = "#000000";
 
-    // Send the list of connected clients to the client
-    clientsList.push({nickName: socket.nickName, nickColor: socket.nickColor});
-    socket.emit('client list', clientsList);
+            // Generate a nickname for the client
+            socket.nickName = chatFeats.newNickName();
+            console.log(socket.nickName + ' connected');
 
-    // Alert all other clients of the new client
-    socket.broadcast.emit('client list', clientsList);
+            socket.emit('nickname', socket.nickName, socket.nickColor);
+        }
+        else {
+            socket.nickName = nickName;
+            socket.nickColor = nickColor;
+            console.log(socket.nickName + ' reconnected');
+        }
 
-    // Send the chat history to the client
-    socket.emit('chat history', chatHistory);
+        // Store the nickname and its color
+        clientsList.push({nickName: socket.nickName, nickColor: socket.nickColor});
+        
+        // Send the list of connected clients to the client
+        socket.emit('client list', clientsList);
+
+        // Alert all other clients of the new client
+        socket.broadcast.emit('client list', clientsList);
+
+        // Send the chat history to the client
+        socket.emit('chat history', chatHistory);
+    });
 
     // Respond to a client's chat message
-    socket.on('chat message', function(msg){
+    socket.on('chat message', function(msg) {
         if(msg.startsWith("/nick ")) {
             let nickNameArr = msg.split(" ");
             let newNickName = nickNameArr[1];
@@ -76,8 +90,7 @@ io.on('connection', function(socket) {
         }
         else {
             let msgTime = chatFeats.msgTimeStamp();
-            chatHistory.push(msgTime + " " + '<span style="color:' + socket.nickColor
-                + '">' + socket.nickName + '</span>' + ": " + msg);
+            chatHistory.push({msgTime: msgTime, nickColor: socket.nickColor, nickName: socket.nickName, msg: msg});
             io.emit('chat message', msgTime, socket.nickName, msg, socket.nickColor);
         }
     });
