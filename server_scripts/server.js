@@ -1,80 +1,96 @@
 // Template code taken from https://socket.io/get-started/chat/
 
-// Initialize express and the server
 var express = require('express');
-var expressApp = express();
-var server = require('http').createServer(expressApp);
-// Initialize socket.io by passing in the http server
-var io = require('socket.io')(server);
+var expressApp = express(); // Init an Express app
+var server = require('http').createServer(expressApp); // Create an http server with Express
+var io = require('socket.io')(server); // Init socket.io with the http server
 var path = require('path');
 var chatFeats = require('./chat-feats');
 
-// Array of the past 200 messages - the chat history
+// Server state vars
 var chatHistory = [];
-// Array of connected clients
 var clientsList = [];
 
-// Pass static files in the public dir to Express.static 
-// middleware for client-side rwx
+// Serve static files from /public
 expressApp.use(express.static(path.join(__dirname + '../../public/')));
 
-// Serve the html page to clients
+// Serve index.html to connected clients
 expressApp.get('/', function(req, res) {
     res.sendFile('index.html', {root:path.join(__dirname, '../public/')});
 });
 
 // Respond when a client connects to the server
 io.on('connection', function(socket) {
-    // Try until a unique nickname is found for the client
-    // A promise should be used here to ensure the nickname
-    // doesn't already exist within the server/DB
-    let nickName = chatFeats.newNickName();
-    console.log(nickName + ' connected');
-    socket.emit('nickname', nickName);
+    // Default font color
+    socket.nickColor = "#000000";
+
+    // Generate a nickname for the client
+    socket.nickName = chatFeats.newNickName();
+    console.log(socket.nickName + ' connected');
+    socket.emit('nickname', socket.nickName, socket.nickColor);
 
     // Send the list of connected clients to the client
-    clientsList.push(nickName);
+    clientsList.push({nickName: socket.nickName, nickColor: socket.nickColor});
     socket.emit('client list', clientsList);
+
     // Alert all other clients of the new client
-    //socket.broadcast.emit('new client', nickName);
-    socket.broadcast.emit('client list change', clientsList);
+    socket.broadcast.emit('client list', clientsList);
 
     // Send the chat history to the client
-    // Typically the client would send a req to server
-    // that queries the DB for their chat history file
     socket.emit('chat history', chatHistory);
 
-    // Respond to a new nickname request by checking to see
-    // if it already exists and if not broadcast the change
-    socket.on('new nickname', function(newNickName) {
-        if(!clientsList.includes(newNickName)) {
-            // Remove the old client's nickname from the list
-            let nickNameIndex = clientsList.indexOf(nickName);
-            if (nickNameIndex !== -1) {
-                nickName = newNickName;
-                clientsList.splice(nickNameIndex, 1);
-                clientsList.push(newNickName);
-                socket.emit('nickname', newNickName);
-                io.emit('client list change', clientsList);
+    // Respond to a client's chat message
+    socket.on('chat message', function(msg){
+        if(msg.startsWith("/nick ")) {
+            let nickNameArr = msg.split(" ");
+            let newNickName = nickNameArr[1];
+            // https://stackoverflow.com/questions/7176908/how-to-get-index-of-object-by-its-property-in-javascript
+            let newNickNameIndex = clientsList.findIndex(client => client.nickName === newNickName);
+            if(newNickNameIndex !== -1) {
+               socket.emit('nickname taken', newNickName);
             }
+            else {
+                let nickNameIndex = clientsList.findIndex(client => client.nickName === socket.nickName);
+                // Replace the old client's nickname from the list
+                clientsList[nickNameIndex].nickName = newNickName;
+                socket.nickName = newNickName;
+                socket.emit('nickname', newNickName, socket.nickColor);
+                io.emit('client list', clientsList);
+            }
+        } 
+        else if(msg.startsWith("/nickcolor ")) {
+            let colorArr = msg.split(" ");
+            let nickColor = colorArr[1];
+            // https://stackoverflow.com/questions/8027423/how-to-check-if-a-string-is-a-valid-hex-color-representation/8027444
+            let nickColorValid = /(^#[0-9A-F]{6}$)|(^#[0-9A-F]{3}$)/i.test(nickColor);
+            if(nickColorValid) {
+                socket.nickColor = nickColor;
+                let socketIndex = clientsList.findIndex(client => client.nickName === socket.nickName);
+                clientsList[socketIndex].nickColor = socket.nickColor;
+                socket.emit('nickname', socket.nickName, socket.nickColor);
+                io.emit('client list', clientsList);
+            }
+            else {
+                socket.emit('invalid color', nickColor);
+            }
+        }
+        else {
+            let msgTime = chatFeats.msgTimeStamp();
+            chatHistory.push(msgTime + " " + '<span style="color:' + socket.nickColor
+                + '">' + socket.nickName + '</span>' + ": " + msg);
+            io.emit('chat message', msgTime, socket.nickName, msg, socket.nickColor);
         }
     });
 
-    // Respond to a chat message
-    socket.on('chat message', function(nickName, msg){
-        let msgTime = chatFeats.msgTimeStamp();
-        chatHistory.push(nickName + " " + msgTime + " " + msg);
-        io.emit('chat message', nickName, msg, msgTime);
-    });
-
+    // Alert all clients that this client has left
     socket.on('disconnect', function() {
-        console.log(nickName + ' disconnected');
-        // Alert all clients that this client has left
-        // and broadcast a new list of clients
-        clientsList = clientsList.filter(function(client) {
-            return client != nickName;
-        });
-        socket.broadcast.emit('client list change', clientsList);
+        console.log(socket.nickName + ' disconnected');
+        let clientIndex = clientsList.findIndex(client => client.nickName === socket.nickName);
+        // https://stackoverflow.com/questions/3954438/how-to-remove-item-from-array-by-value
+        if(clientIndex !== -1) {
+            clientsList.splice(clientIndex, 1);
+        }
+        socket.broadcast.emit('client list', clientsList);
     });
 });
 

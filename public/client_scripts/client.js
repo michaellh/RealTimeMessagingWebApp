@@ -2,10 +2,6 @@
 
 // Initialize the client socket
 $(function () {
-    // Client state properties
-    var userNickName = "";
-    var usersList = [];
-
     var socket = io();
 
     // Send the chat message
@@ -13,59 +9,47 @@ $(function () {
         // Prevents the page from reloading
         e.preventDefault();
 
-        // Change the client's nickname if they input
-        // the correct command "/nick newName"
         let msg = $('#user-message').val();
-        if(msg.includes("/nick")) {
-            let nickNameArr = msg.split(" ");
-            let newNickName = nickNameArr[1];
-            if(usersList.indexOf(newNickName) !== -1) {
-                $('#messages').append($('<li>').text("Nickname already exists! Try another name!"));
-            }
-            else {
-                socket.emit('new nickname', newNickName);
-            }
-        }
-        else {
-            socket.emit('chat message', userNickName, msg);
-        }
+        socket.emit('chat message', msg);
         $('#user-message').val('');
         return false;
     });
 
     // Receive a nickname bestowed by the server
-    socket.on('nickname', function(nickName) {
-        userNickName = nickName;
-        $('#nickname').text("Welcome " + userNickName);
+    socket.on('nickname', function(nickName, nickColor) {
+        $('#nickname').html("Welcome " + '<span style="color:' + nickColor
+        + '">' + nickName + '</span>');
+    });
+
+    // Receive error msg that the nickname change failed
+    socket.on('nickname taken', function(nickName) {
+        $('#messages').append($('<li>').text(nickName + " is already taken!"));
+    });
+
+    // Receive error msg that the font color failed
+    socket.on('invalid color', function(nickColor) {
+        $('#messages').append($('<li>').text(nickColor + " is an invalid color!"));
     });
 
     // Receive the chat history upon entering the chat
     socket.on('chat history', function(chatHistory) {
         chatHistory.forEach(element => {
-            $('#messages').append($('<li>').text(element));
+            $('#messages').append($('<li>').html(element));
         });
     });
 
     // Receive the list of connected users and display it
     socket.on('client list', function(clientsList) {
-        clientsList.forEach(element => {
-            $('#users').append($('<li>').text(element));
-            usersList.push(element);
-        });
-    });
-
-    // Receive an alert that a user has disconnected
-    socket.on('client list change', function(clientsList) {
         $('#users').empty();
-        usersList.length = 0;
         clientsList.forEach(element => {
-            $('#users').append($('<li>').text(element));
-            usersList.push(element);
+            $('#users').append($('<li>').html('<span style="color:' + element.nickColor
+            + '">' + element.nickName + '</span>'));
         });
     });
 
     // Receive a msg and append it to the chat history
-    socket.on('chat message', function(nickName, msg, msgTime) {
-        $('#messages').append($('<li>').text(nickName + " " + msgTime + " " + msg));
+    socket.on('chat message', function(msgTime, nickName, msg, nickColor) {
+        $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
+         + '">' + nickName + '</span>' + ": " + msg));
     });
 });
