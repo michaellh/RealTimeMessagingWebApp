@@ -21,7 +21,7 @@ $(function () {
             userName = document.cookie.replace(/(?:(?:^|.*;\s*)nickName\s*\=\s*([^;]*).*$)|^.*$/, "$1");
             let nickColor = document.cookie.replace(/(?:(?:^|.*;\s*)nickColor\s*\=\s*([^;]*).*$)|^.*$/, "$1");
             socket.emit('client status', "reconnecting", userName, nickColor);
-            $('#nickname').html("Welcome " + '<span style="color:' + nickColor
+            $('#nickname').html("Your username is " + '<span style="color:' + nickColor
                 + '">' + userName + '</span>');
         }
         else {
@@ -34,7 +34,7 @@ $(function () {
         userName = nickName;
         document.cookie = "nickName=" + userName;
         document.cookie = "nickColor=" + nickColor;
-        $('#nickname').html("Welcome " + '<span style="color:' + nickColor
+        $('#nickname').html("Your username is " + '<span style="color:' + nickColor
             + '">' + userName + '</span>');
     });
 

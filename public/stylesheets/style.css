@@ -5,6 +5,8 @@
     background-color: antiquewhite;
     border-style: outset;
     border-radius: 5px;
+    display: flex;
+    flex-direction: column;
 }
 
 #app-container {
@@ -13,7 +15,7 @@
 }
 
 #messages-container {
-    width: 65%;
+    width: 70%;
 }
 
 p {
@@ -22,9 +24,12 @@ p {
 }
 
 #messages-scrollbar {
+    background-color: aliceblue;
     position: absolute;
-    width: 50%;
-    max-height: 50%;
+    width: 53%;
+    min-height: 60%;
+    max-height: 60%;
+    overflow-x: hidden;
     overflow-y: auto;
     margin-top: 5px;
 }
@@ -35,22 +40,40 @@ p {
     padding: 0;
 }
 
+#messages li {
+    word-wrap: break-word;
+}
+
 #users-container {
     width: 30%;
 }
 
 #users-scrollbar {
+    background-color: lavenderblush;
     position: absolute;
-    width: 20%;
+    width: 23.5%;
+    min-height: 60%;
     max-height: 60%;
+    overflow-x: hidden;
     overflow-y: auto;
     margin-top: 5px;
 }
 
 #users {
     list-style-type: none; 
-    margin: 0; 
-    padding: 0;
+}
+
+#users li {
+    word-wrap: break-word;
+}
+
+#users li::before {
+    content: "\2022";
+    color: green;
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
 }
 
 #message-form {
@@ -60,6 +83,7 @@ p {
     border-style: double;
     border-width: 5px;
     max-width: 77%;
+    display: flex;
 }
 
 #user-message {
