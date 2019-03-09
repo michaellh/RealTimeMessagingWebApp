@@ -1,0 +1,59 @@
+#message-app {
+    max-width: 100%;
+    height: auto;
+    margin: auto;
+}
+
+#app-container {
+    display: flex;
+    flex-direction: row;
+}
+
+#messages-container {
+    width: 65%;
+}
+
+p {
+    font: 24px Helvetica, Arial;
+}
+
+#messages-scrollbar {
+    position: absolute;
+    width: 60%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+#messages {
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0;
+}
+
+#users-container {
+    width: 30%;
+}
+
+#users-scrollbar {
+    position: absolute;
+    width: 30%;
+    max-height: 80%;
+    overflow-y: auto;
+}
+
+#users {
+    list-style-type: none; 
+    margin: 0; 
+    padding: 0;
+}
+
+#message-form {
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+}
+
+#user-message {
+    padding: 15px;
+    width: 100%;
+} 

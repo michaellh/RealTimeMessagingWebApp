@@ -51,7 +51,6 @@ $(function () {
     // Receive the chat history upon entering the chat
     socket.on('chat history', function(chatHistory) {
         chatHistory.forEach(element => {
-            //$('#messages').append($('<li>').html(element));
             if(document.cookie.split(';').filter((item) => item.includes('nickName=' + element.nickName)).length) {
                 $('#messages').append($('<li>').html(element.msgTime + " " + '<span style="color:' + element.nickColor
                 + '">' + element.nickName + '</span>' + ": " + '<span style="font-weight:' + 'bold' + '">' + element.msg + '</span>'));

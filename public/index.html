@@ -2,6 +2,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
+        <!--meta name="viewport" content="width=device-width, initial-scale=1"-->
         <script type="text/javascript" src="client_scripts/socket.io.js"></script>
         <script type="text/javascript" src="client_scripts/jquery-3.3.1.min.js"></script>
         <script type="text/javascript" src="client_scripts/client.js"></script>
@@ -10,12 +11,19 @@
     </head>
     <body>
         <div id="message-app">
-            <p id="nickname"></p>
-            <div id="messages-container">
-                <ul id="messages"></ul>
-            </div>
-            <div id="users-container">
-                <ul id="users"></ul>
+            <div id="app-container">
+                <div id="messages-container">
+                    <p id="nickname"></p>
+                    <div id="messages-scrollbar">
+                        <ul id="messages"></ul>
+                    </div>
+                </div>
+                <div id="users-container">
+                    <p>Online users:</p>
+                    <div id="users-scrollbar">
+                        <ul id="users"></ul>
+                    </div>
+                </div>
             </div>
             <form id="message-form" action="">
                 <input id="user-message" autocomplete="off"/>
