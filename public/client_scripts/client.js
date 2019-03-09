@@ -60,7 +60,7 @@ $(function () {
                 + '">' + element.nickName + '</span>' + ": " + element.msg));
             }
             // https://stackoverflow.com/questions/31716529/how-can-i-scroll-down-to-the-last-li-item-in-a-dynamically-added-ul/31716758
-            $('#messages-scrollbar').animate({scrollTop: $('#messages-scrollbar').prop("scrollHeight")}, 500);
+            $('#messages-scrollbar').animate({scrollTop: $('#messages-scrollbar').prop("scrollHeight")}, 100);
         });
     });
 
@@ -83,6 +83,6 @@ $(function () {
             $('#messages').append($('<li>').html(msgTime + " " + '<span style="color:' + nickColor
             + '">' + nickName + '</span>' + ": " + msg));
         }
-        $('#messages-scrollbar').animate({scrollTop: $('#messages-scrollbar').prop("scrollHeight")}, 500);
+        $('#messages-scrollbar').animate({scrollTop: $('#messages-scrollbar').prop("scrollHeight")}, 100);
     });
 });

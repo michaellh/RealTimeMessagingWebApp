@@ -1,7 +1,10 @@
 #message-app {
     max-width: 100%;
     height: auto;
-    margin: auto;
+    margin: 10%;
+    background-color: antiquewhite;
+    border-style: outset;
+    border-radius: 5px;
 }
 
 #app-container {
@@ -14,14 +17,16 @@
 }
 
 p {
+    text-align: center;
     font: 24px Helvetica, Arial;
 }
 
 #messages-scrollbar {
     position: absolute;
-    width: 60%;
-    max-height: 80%;
+    width: 50%;
+    max-height: 50%;
     overflow-y: auto;
+    margin-top: 5px;
 }
 
 #messages {
@@ -36,9 +41,10 @@ p {
 
 #users-scrollbar {
     position: absolute;
-    width: 30%;
-    max-height: 80%;
+    width: 20%;
+    max-height: 60%;
     overflow-y: auto;
+    margin-top: 5px;
 }
 
 #users {
@@ -50,10 +56,13 @@ p {
 #message-form {
     width: 100%;
     position: fixed;
-    bottom: 0;
+    bottom: 10%;
+    border-style: double;
+    border-width: 5px;
+    max-width: 77%;
 }
 
 #user-message {
     padding: 15px;
-    width: 100%;
+    width: 95%;
 } 
